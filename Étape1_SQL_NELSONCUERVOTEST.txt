@@ -1,0 +1,405 @@
+/*
+Étape 1 : Modélisation et manipulation des données à partir de MSSQL
+Le candidat doit utiliser MSSQL pour exécuter les requêtes et les tâches demandées.
+*/
+
+--------------------------------------------------------------------------------
+				--QUESTION 01
+--------------------------------------------------------------------------------
+
+-- Question 1 : Modélisation des données
+
+/*
+Le Port de Montréal gère les données relatives aux arrivées et aux départs des navires. Donnez la
+requête qui permet de créer une base de données normalisée appelée « GestionVoyage » avec
+les informations suivantes :
+Arrivées :
+- Nom du navire
+- Date et heure d’arrivée
+- Port d’origine
+- Terminal
+Départs :
+- Nom du navire
+- Date et heure de départ
+- Port de destination
+- Quai
+*/
+
+CREATE DATABASE GestionVoyage;
+
+USE GestionVoyage;
+
+--DROP TABLE Arrivees;
+--DROP TABLE Departs;
+
+
+-- 01. Création de la base de données
+CREATE DATABASE GestionVoyage;
+
+-- Création de tableaux d'arrivées et de départs
+-- Rapport de 1 à 1 car un navire ne peut partir deux fois sans entrer à nouveau, chaque arrivée correspondant à un départ avant une nouvelle arrivée.
+USE GestionVoyage;
+
+CREATE TABLE Arrivees (
+    Id INT PRIMARY KEY IDENTITY(1,1),
+    NomNavire NVARCHAR(255) NOT NULL,
+    DateHeureArrivee DATETIME NOT NULL,
+    PortOrigine NVARCHAR(255) NOT NULL,
+    Terminal NVARCHAR(255) NOT NULL
+);
+
+
+CREATE TABLE Departs (
+    Id INT PRIMARY KEY IDENTITY(1,1),
+    NomNavire NVARCHAR(255) NOT NULL,
+    DateHeureDepart DATETIME NOT NULL,
+    PortDestination NVARCHAR(255) NOT NULL,
+    Quai NVARCHAR(255) NOT NULL,
+    ArriveeId INT, -- Cette colonne contient l'identifiant de l'arrivée correspondante.
+    FOREIGN KEY (ArriveeId) REFERENCES Arrivees(Id)
+);
+
+
+
+-- Relation entre les tableaux
+-- Foreign keys
+ALTER TABLE Arrivees
+ADD CONSTRAINT FK_Arrivees_DepartId FOREIGN KEY (DepartId) REFERENCES Departs(Id);
+
+ALTER TABLE Departs
+ADD CONSTRAINT FK_Departs_ArriveeId FOREIGN KEY (ArriveeId) REFERENCES Arrivees(Id);
+
+----------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------
+
+-- TRIGGERS: PLSQL
+-- Cette trigger a été utilisée à des fins de test uniquement.
+-- vérifier que le nom du navire sortant est le même que le nom du navire navire dans le registre d'entrée..
+-- vérifier que l'heure de départ n'est pas inférieure à l'heure d'arrivée.
+
+/*
+USE GestionVoyage;
+GO
+
+CREATE TRIGGER trg_CheckDepartDetails
+ON Departs
+INSTEAD OF INSERT, UPDATE
+AS
+BEGIN
+    DECLARE @NomNavireDepart NVARCHAR(255);
+    DECLARE @DateHeureDepart DATETIME;
+    DECLARE @ArriveeId INT;
+
+    SELECT @NomNavireDepart = i.NomNavire, @DateHeureDepart = i.DateHeureDepart, @ArriveeId = i.ArriveeId
+    FROM inserted i;
+
+    DECLARE @NomNavireArrivee NVARCHAR(255);
+    DECLARE @DateHeureArrivee DATETIME;
+
+    SELECT @NomNavireArrivee = a.NomNavire, @DateHeureArrivee = a.DateHeureArrivee
+    FROM Arrivees a
+    WHERE a.Id = @ArriveeId;
+
+    -- Vérifier que la date de départ n'est pas inférieure à la date d'arrivée.
+    IF @DateHeureDepart < @DateHeureArrivee
+    BEGIN
+        RAISERROR ('La date et l''heure de départ ne peuvent être inférieures à la date et à l''heure d''arrivée.', 16, 1);
+        ROLLBACK TRANSACTION;
+        RETURN;
+    END
+
+    -- Vérifier que le nom du navire de départ est le même que celui du navire d'arrivée.
+    IF @NomNavireDepart != @NomNavireArrivee
+    BEGIN
+        RAISERROR ('Le nom du navire de départ doit être le même que le nom du navire d''arrivée.', 16, 1);
+        ROLLBACK TRANSACTION;
+        RETURN;
+    END
+
+    -- Insérer des données dans le tableau Départs
+    INSERT INTO Departs (NomNavire, DateHeureDepart, PortDestination, Quai, ArriveeId)
+    SELECT NomNavire, DateHeureDepart, PortDestination, Quai, ArriveeId
+    FROM inserted;
+END;
+
+*/
+
+/*
+USE GestionVoyage;
+GO
+DROP TRIGGER trg_CheckDepartDetails; */
+
+
+USE GestionVoyage;
+--Insert Data
+-- Arrivees
+
+-- Navire 1
+INSERT INTO Arrivees (NomNavire, DateHeureArrivee, PortOrigine, Terminal)
+VALUES ('Navire1', '2024-05-18 08:00:00', 'New York', 'Terminal A');
+
+-- Navire 2
+INSERT INTO Arrivees (NomNavire, DateHeureArrivee, PortOrigine, Terminal)
+VALUES ('Navire2', '2024-04-18 09:30:00', 'Kingston', 'Terminal B');
+
+-- Navire 3
+INSERT INTO Arrivees (NomNavire, DateHeureArrivee, PortOrigine, Terminal)
+VALUES ('Navire3', '2024-05-18 10:45:00', 'Quebec City', 'Terminal C');
+
+-- Navire 4
+INSERT INTO Arrivees (NomNavire, DateHeureArrivee, PortOrigine, Terminal)
+VALUES ('Navire4', '2024-04-18 12:15:00', 'New York', 'Terminal A');
+
+-- Navire 5
+INSERT INTO Arrivees (NomNavire, DateHeureArrivee, PortOrigine, Terminal)
+VALUES ('Navire5', '2024-05-18 13:45:00', 'Kingston', 'Terminal B');
+
+-- Navire 6
+INSERT INTO Arrivees (NomNavire, DateHeureArrivee, PortOrigine, Terminal)
+VALUES ('Navire6', '2024-03-18 15:00:00', 'Quebec City', 'Terminal C');
+
+USE GestionVoyage;
+-- Navire 1
+INSERT INTO Arrivees (NomNavire, DateHeureArrivee, PortOrigine, Terminal)
+VALUES ('Navire1', '2024-05-29 08:00:00', 'New York', 'Terminal B');
+
+USE GestionVoyage;
+-- Navire 2
+INSERT INTO Arrivees (NomNavire, DateHeureArrivee, PortOrigine, Terminal)
+VALUES ('Navire2', '2024-02-18 09:30:00', 'Kingston', 'Terminal B');
+
+-- Navire 3
+INSERT INTO Arrivees (NomNavire, DateHeureArrivee, PortOrigine, Terminal)
+VALUES ('Navire3', '2024-02-18 10:45:00', 'Quebec City', 'Terminal C');
+
+
+-- Departs
+
+-- DEBUT TEST
+-- Insérer un départ avec une date et une heure de départ avant la date et l'heure d'arrivée (TRIGGER ERROR)
+INSERT INTO Departs (NomNavire, DateHeureDepart, PortDestination, Quai, ArriveeId)
+VALUES ('Navire1', '2023-05-09 18:00:00', 'Port of Kingston', 'Quai 5', 1);
+-- Une erreur est attendue de la part du déclencheur 'trg_CheckDateHeureDepart'
+
+-- Insérer un départ avec un nom de navire différent de celui de l'arrivée (TRIGGER ERROR)
+INSERT INTO Departs (NomNavire, DateHeureDepart, PortDestination, Quai, ArriveeId)
+VALUES ('Navire111', '2024-06-10 18:00:00', 'Port of Kingston', 'Quai 5', 1);
+-- Une erreur est attendue de la part du déclencheur 'trg_CheckNomNavire'
+-- FIN TEST
+
+-- Insérer des données de la bonne façon
+-- Navire 1
+INSERT INTO Departs (NomNavire, DateHeureDepart, PortDestination, Quai, ArriveeId)
+VALUES ('Navire1', '2024-05-18 10:30:00', 'New York', 'Quai 1', 1);
+
+-- Navire 2
+INSERT INTO Departs (NomNavire, DateHeureDepart, PortDestination, Quai, ArriveeId)
+VALUES ('Navire2', '2024-04-18 11:45:00', 'Kingston', 'Quai 2', 2); 
+
+-- Navire 3
+INSERT INTO Departs (NomNavire, DateHeureDepart, PortDestination, Quai, ArriveeId)
+VALUES ('Navire3', '2024-05-18 13:00:00', 'Quebec City', 'Quai 3', 3); 
+
+-- Navire 4
+INSERT INTO Departs (NomNavire, DateHeureDepart, PortDestination, Quai, ArriveeId)
+VALUES ('Navire4', '2024-04-18 14:30:00', 'New York', 'Quai 4', 4); 
+
+-- Navire 5
+INSERT INTO Departs (NomNavire, DateHeureDepart, PortDestination, Quai, ArriveeId)
+VALUES ('Navire5', '2024-05-18 15:45:00', 'Kingston', 'Quai 5', 5); 
+
+-- Navire 6
+INSERT INTO Departs (NomNavire, DateHeureDepart, PortDestination, Quai, ArriveeId)
+VALUES ('Navire6', '2024-03-18 17:00:00', 'Quebec City', 'Quai 6', 6); 
+
+USE GestionVoyage;
+-- Navire 1
+INSERT INTO Departs (NomNavire, DateHeureDepart, PortDestination, Quai, ArriveeId)
+VALUES ('Navire1', '2024-06-01 10:30:00', 'Kingston', 'Quai 2', 7);
+
+USE GestionVoyage;
+-- Navire 2
+INSERT INTO Departs (NomNavire, DateHeureDepart, PortDestination, Quai, ArriveeId)
+VALUES ('Navire2', '2024-03-18 11:45:00', 'Quebec City', 'Quai 72', 8); 
+
+-- Navire 3
+INSERT INTO Departs (NomNavire, DateHeureDepart, PortDestination, Quai, ArriveeId)
+VALUES ('Navire3', '2024-03-18 13:00:00', 'New York', 'Quai 72', 9); 
+
+--------------------------------------------------------------------------------
+				-- QUESTION 02
+--------------------------------------------------------------------------------
+
+Question 2 : Requêtes SQL
+
+/*
+1. Écrivez une requête pour récupérer tous les départs prévus pour le mois en cours.
+2. Écrivez une requête pour compter le nombre total d’arrivées en provenance du port de New York.
+3. Écrivez une requête pour trouver le nom du navire qui est arrivé en dernier.
+4.- Trouvez tous les voyages de 2024 qui sont arrivés au Quai 72.
+*/
+
+01.
+-- Récupérer tous les départs prévus pour le mois en cours:
+USE GestionVoyage;
+SELECT *
+FROM Departs
+WHERE MONTH(DateHeureDepart) = MONTH(GETDATE());
+
+02.
+-- Compter le nombre total d'arrivées en provenance du port de New York:
+USE GestionVoyage;
+SELECT COUNT(*)
+FROM Arrivees
+WHERE PortOrigine = 'New York';
+
+03.
+-- Trouver le nom du navire qui est arrivé en dernier:
+USE GestionVoyage;
+WITH RankedArrivals AS (
+    SELECT NomNavire,
+           DateHeureArrivee,
+           ROW_NUMBER() OVER (ORDER BY DateHeureArrivee DESC) AS RowNum
+    FROM Arrivees
+)
+SELECT NomNavire
+FROM RankedArrivals
+WHERE RowNum = 1;
+
+
+04.
+-- Trouvez tous les voyages de 2024 qui sont arrivés au Quai 72:
+USE GestionVoyage;
+SELECT a.NomNavire AS NomNavireArrivee, 
+       a.DateHeureArrivee AS DateHeureArrivee, 
+       d.NomNavire AS NomNavireDepart, 
+       d.DateHeureDepart AS DateHeureDepart, 
+       d.PortDestination AS PortDestination, 
+       d.Quai AS Quai
+FROM Arrivees a
+INNER JOIN Departs d ON a.Id = d.ArriveeId
+WHERE YEAR(a.DateHeureArrivee) = 2024
+AND d.Quai = 'Quai 72';
+
+
+
+--------------------------------------------------------------------------------
+				--QUESTION 03 
+--------------------------------------------------------------------------------
+
+/*
+Écrivez une requête SQL pour ajouter une nouvelle colonne «TypeCargaison » afin de 
+stocker le type de cargaison des navires. Assurez-vous que la colonne peut contenir des 
+valeurs telles que «Conteneurs », «Vrac sec », «Produits pétroliers », etc.
+*/
+
+
+-- Ajout d’une colonne
+USE GestionVoyage;
+ALTER TABLE Arrivees
+ADD TypeCargaison NVARCHAR(255);
+
+
+-- Mise à jour des valeurs pour les trois premiers navires
+USE GestionVoyage;
+UPDATE Arrivees
+SET TypeCargaison = 'Conteneurs'
+WHERE Id IN (1, 2, 3);
+
+
+-- Mettre à jour les valeurs des trois navires suivants
+USE GestionVoyage;
+UPDATE Arrivees
+SET TypeCargaison = 'Vrac sec'
+WHERE Id IN (4, 5, 6);
+
+
+-- Valeurs actualisées pour les trois derniers navires
+USE GestionVoyage;
+UPDATE Arrivees
+SET TypeCargaison = 'Produits pétroliers'
+WHERE Id IN (7, 8, 9);
+
+
+
+--------------------------------------------------------------------------------
+				--QUESTION 04 
+--------------------------------------------------------------------------------
+
+/*
+Le Port de Montréal souhaite automatiser la génération d’un rapport mensuel sur les voyages
+effectués par les différents navires. Créez une procédure stockée nommée
+«GenererRapportMensuel » qui prendra en entrée le mois (en chiffre) et l’année souhaités et
+affichera tous les voyages pour le mois en question.
+*/
+
+USE GestionVoyage;
+GO 
+
+CREATE PROCEDURE GenererRapportMensuel
+    @Mois INT,
+    @Annee INT
+AS
+BEGIN
+    SELECT *
+    FROM Arrivees
+    WHERE MONTH(DateHeureArrivee) = @Mois AND YEAR(DateHeureArrivee) = @Annee;
+
+    SELECT *
+    FROM Departs
+    WHERE MONTH(DateHeureDepart) = @Mois AND YEAR(DateHeureDepart) = @Annee;
+END;
+
+
+-- Vérification de la procédure :
+EXEC GenererRapportMensuel @Mois = 4, @Annee = 2024;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
