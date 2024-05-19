@@ -49,7 +49,15 @@ namespace API_port_montreal.Controllers
             }
         }
 
+
         // Méthode asynchrone pour générer le rapport mensuel
+        // Explication de la fonction :
+        /*
+        - Cette méthode privée asynchrone est utilisée pour générer un rapport mensuel à partir de la base de données.
+        - Elle prend en entrée le mois et l'année pour lesquels le rapport doit être généré.
+        - Elle exécute une procédure stockée dans la base de données pour récupérer les données des arrivées et des départs pour le mois et l'année spécifiés.
+        - Elle parcourt les résultats et construit des objets anonymes représentant les arrivées et les départs, puis les retourne dans un objet global contenant les deux listes.
+        */
         private async Task<object> GenererRapportMensuelAsync(int mois, int annee)
         {
             // Listes pour stocker les arrivées et les départs
