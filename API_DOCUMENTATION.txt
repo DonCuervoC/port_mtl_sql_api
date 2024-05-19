@@ -1,12 +1,39 @@
-# NELSON CUERVO TEST - DOCUMENTATION API
+			
 
-## ROUTER ET ENDPOINTS:
+			NELSON CUERVO TEST - DOCUMENTATION API
 
-### Départs
 
-#### 01. GET ALL
 
-- Route : [host]/api/arrivees
+Description du Projet:
+
+Ce dépôt contient un projet d'API RESTful développé en .NET 7 et SQL Server. Le projet comprend un document texte avec le code SQL pour la création de la base de données, l'insertion et la manipulation des données selon les instructions fournies. Il est important de noter que la base de données a été créée en localhost, il peut donc être nécessaire de mettre à jour la chaîne de connexion à MSSQL selon les besoins de votre environnement.
+
+
+Caractéristiques Principales:
+
+API RESTful développée en .NET 7 et SQL Server.
+Utilise Swagger à des fins de test et de documentation.
+Les routes et les DTO utilisés peuvent être facilement visualisés une fois l'API lancée.
+
+
+
+Défis et Apprentissages:
+
+Ce projet a représenté un défi intéressant, surtout parce que au cours des 9 derniers mois, j'ai travaillé davantage avec des technologies telles que Node.js et MongoDB. Cependant, réappliquer les principes de la programmation orientée objet dans le développement web en utilisant .NET et SQL Server sera toujours une expérience amusante et constructive pour moi. J'ai beaucoup apprécié avoir eu l'opportunité de participer à ce test.
+
+
+
+ROUTER ET ENDPOINTS:
+
+--------------------------------------------------------------------------------------
+			 =>	Départs     <=
+--------------------------------------------------------------------------------------
+
+/api/arrivees
+
+01.GET ALL
+
+- Route : [host]/api/arrives
 - Méthode : GET
 - Paramètres : Aucun
 - Réponse :
@@ -14,7 +41,8 @@
   - Code 404 (Not Found) : En cas d'erreur.
   - Code 403 (Forbidden) : En cas d'accès non autorisé.
 
-#### 02. GET BY ID
+
+02. GET BY ID
 
 - Route : [host]/api/arrivees/{arriveeId:int}
   Exemple : [host]/api/arrivees/2
@@ -27,7 +55,9 @@
   - Code 403 (Forbidden) : En cas d'accès non autorisé.
   - Code 400 (Bad Request) : Si la requête est mal formulée.
 
-#### 03. CREATE
+
+
+03. CREATE
 
 - Route : [host]/api/arrivees
 - Méthode : POST
@@ -41,7 +71,8 @@
   - Code 400 (Bad Request) : Si la requête est mal formulée ou si le modèle est invalide.
   - Code 500 (Internal Server Error) : Si un problème se produit lors de la création de l'arrivée.
 
-#### 04. UPDATE
+
+04. UPDATE
 
 - Route : [host]/api/arrivees/{arriveeId:int}
 - Méthode : PATCH
@@ -57,7 +88,9 @@
   - Code 404 (Not Found) : Si l'enregistrement avec l'ID spécifié n'est pas trouvé.
   - Code 500 (Internal Server Error) : Si un problème se produit lors de la mise à jour de l'arrivée.
 
-#### 05. DELETE
+
+
+05. DELETE
 
 - Route : [host]/api/arrivees/{arriveId:int}
 - Méthode : DELETE
@@ -70,9 +103,14 @@
   - Code 404 (Not Found) : Si l'enregistrement avec l'ID spécifié n'est pas trouvé.
   - Code 500 (Internal Server Error) : Si un problème se produit lors de la suppression de l'arrivée.
 
-### Départs
 
-#### 01. GET ALL
+
+--------------------------------------------------------------------------------------
+			 =>	Départs     <=
+--------------------------------------------------------------------------------------
+
+
+01. GET ALL
 
 - Route : [host]/api/departs
 - Méthode : GET
@@ -81,7 +119,9 @@
   - Code 200 (OK) : Indique que l'opération a réussi et renvoie tous les enregistrements de départs trouvés dans la base de données, ordonnés par ID.
   - Code 403 (Forbidden) : Si l'utilisateur n'est pas autorisé à effectuer cette action.
 
-#### 02. GET BY ID
+
+
+02. GET BY ID
 
 - Route : [host]/api/departs/{departId}
 - Méthode : GET
@@ -93,7 +133,8 @@
   - Code 404 (Not Found) : Si aucun enregistrement avec l'ID spécifié n'est trouvé.
   - Code 403 (Forbidden) : Si l'utilisateur n'est pas autorisé à effectuer cette action.
 
-#### 03. CREATE
+
+03. CREATE
 
 - Route : [host]/api/departs
 - Méthode : POST
@@ -104,18 +145,21 @@
     - portDestination (string) : Port de destination du navire
     - quai (string) : Quai de départ du navire
     - arriveeId (int) : ID de l'arrivée associée au départ à créer
+
 - Réponse :
   - Code 201 (Created) : Indique que le départ a été créé avec succès et renvoie le départ créé avec son ID.
   - Code 400 (Bad Request) : Si le modèle de données reçu est invalide ou si l'objet est null.
   - Code 404 (Not Found) : Si l'arrivée associée au départ n'est pas trouvée dans la base de données.
   - Code 500 (Internal Server Error) : Si une erreur survient lors de la création du départ dans la base de données.
 
-#### 04. UPDATE
+
+
+
+04. UPDATE
 
 - Route : [host]/api/departs/{departId}
 - Méthode : PATCH
-- Paramètre
-  - departId (int) : L'ID du départ à mettre à jour
+- Paramètre : departId (int) : L'ID du départ à mettre à jour
 - Corps de la requête :
   - departsDto (DepartsDto) : Objet contenant les nouvelles informations du départ
     - id (int) : L'ID du départ (doit correspondre à celui de l'enregistrement à mettre à jour)
@@ -123,13 +167,16 @@
     - portDestination (string) : Port de destination du navire
     - quai (string) : Quai de départ du navire
     - arriveeId (int) : ID de l'arrivée associée au départ
+
 - Réponse :
   - Code 204 (No Content) : Indique que la mise à jour a été effectuée avec succès.
   - Code 404 (Not Found) : Si le départ avec l'ID spécifié n'est pas trouvé dans la base de données.
   - Code 400 (Bad Request) : Si le modèle de données reçu est invalide.
   - Code 500 (Internal Server Error) : Si une erreur survient lors de la mise à jour du départ dans la base de données.
 
-#### 05. DELETE
+
+
+05. DELETE
 
 - Route : [host]/api/departs/{departId}
 - Méthode : DELETE
@@ -141,7 +188,11 @@
   - Code 404 (Not Found) : Si aucun enregistrement avec l'ID spécifié n'est trouvé.
   - Code 400 (Bad Request) : Si la requête est invalide.
 
-### Générer un rapport mensuel
+
+--------------------------------------------------------------------------------------
+			 =>	Générer un rapport mensuel    <=
+--------------------------------------------------------------------------------------
+
 
 - Route : [host]/api/rapports/GenererRapportMensuel
 - Méthode : GET
@@ -154,3 +205,9 @@
   - Code 404 (Not Found) : Si la ressource demandée n'est pas trouvée.
   - Code 500 (Internal Server Error) : Si une erreur interne du serveur se produit pendant le traitement de la demande.
 
+
+--------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------
