@@ -70,6 +70,7 @@ namespace API_port_montreal.Repository
             arrivees.DateHeureArrivee = DateTime.Now;
             _db.Arrivees.Update(arrivees);
             return Save();
+
         }
 
         public bool Save()
